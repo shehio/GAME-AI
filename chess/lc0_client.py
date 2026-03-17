@@ -1,6 +1,38 @@
 import subprocess
 import time
 
+
+class InvalidFenError(ValueError):
+    pass
+
+
+def validate_fen(fen):
+    fields = fen.strip().split()
+    if len(fields) != 6:
+        raise InvalidFenError(
+            f"FEN must have 6 space-separated fields, got {len(fields)}"
+        )
+    ranks = fields[0].split("/")
+    if len(ranks) != 8:
+        raise InvalidFenError(
+            f"FEN piece placement must have 8 ranks separated by '/', got {len(ranks)}"
+        )
+    valid_chars = set("pnbrqkPNBRQK12345678")
+    for i, rank in enumerate(ranks):
+        if not rank:
+            raise InvalidFenError(f"Rank {i + 1} is empty")
+        if not all(c in valid_chars for c in rank):
+            bad = [c for c in rank if c not in valid_chars]
+            raise InvalidFenError(
+                f"Rank {i + 1} contains invalid characters: {bad}"
+            )
+        count = sum(int(c) if c.isdigit() else 1 for c in rank)
+        if count != 8:
+            raise InvalidFenError(
+                f"Rank {i + 1} has {count} squares, expected 8"
+            )
+
+
 class Lc0Client:
     def __init__(self, lc0_path, weights_path):
         self.lc0_path = lc0_path
@@ -23,12 +55,13 @@ class Lc0Client:
         self.__send_command(f'position startpos moves {" ".join(moves)}')
 
     def set_fen_position(self, fen):
+        validate_fen(fen)
         self.__send_command(f'position fen {fen}')
 
     def go(self, nodes=100):
         self.__send_command(f'go nodes {nodes}', verbose=False)
         return self.__read_response()
-    
+
     def get_best_move(self, nodes=10):
         response = self.go(nodes)
         for line in response:
