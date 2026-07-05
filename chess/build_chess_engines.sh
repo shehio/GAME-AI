@@ -1,3 +1,4 @@
 #!/bin/bash
-bash engines/build_leela.sh
-bash engines/build_stockfish.sh
+cd "$(dirname "$0")"
+bash engine-scripts/build_leela.sh
+bash engine-scripts/build_stockfish.sh
