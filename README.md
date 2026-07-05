@@ -6,6 +6,22 @@ This is a repository for studying AI in games. It investigates classical search 
 2. Run pre-built models
 3. Learn about training such models using different algorithms
 
+## What's Implemented
+| Directory | What's inside |
+|-----------|---------------|
+| [`chess/`](chess) | Stockfish and Leela Chess Zero (lc0) integration: build scripts for both engines, a UCI client for lc0, engine-vs-engine matches (`stockfish_vs_leela.py`), and move-by-move analysis of famous games (`game-analysis.py`). See [chess/README.md](chess/README.md). |
+| [`arcade/`](arcade) | Atari gameplay via the Arcade Learning Environment and Gymnasium (`main.py`, `ale_gym.py`), plus Stable-Baselines3 training/evaluation scripts for Breakout (PPO), Pong (DQN), and LunarLander (PPO) under `arcade/baselines/`. |
+| [`graph-search/`](graph-search) | Classical graph search: BFS solution to the jealous-husbands river-crossing puzzle. |
+| `cleanrl/` | [CleanRL](https://github.com/vwxyzjn/cleanrl) as a git submodule, driven by `run-clean-rl.sh` (e.g. DQN on Breakout). |
+
+## How to Run
+```bash
+./init.sh                                  # create venv, install requirements, download Atari ROMs
+python arcade/ale_gym.py                   # random policy on Breakout with rendering
+cd arcade/baselines && python breakout_train.py   # train PPO on Breakout
+```
+For the chess engines, follow [chess/README.md](chess/README.md). For CleanRL, initialize the submodule first: `git submodule update --init`.
+
 ## Why?
 - AI benchmarking
 - Challenge Human Players
