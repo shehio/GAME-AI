@@ -2,10 +2,15 @@
 ### Why
 
 ### How
-- Clone and build Stockfish and lc0: `./build_engines.sh`
+- Clone and build Stockfish and lc0: `./build_chess_engines.sh`
 - Activate Python virtual environment: `python3 -m venv venv && source venv/bin/activate`
-- Install Pip requirements: `pip3 install -r requirements.txt`
-- Test Stockfish integration `python3 test_stockfish.py`
+- Install Pip requirements: `pip3 install -r ../requirements.txt`
+- Test Stockfish integration: `python3 test_stockfish.py`
+- Test lc0 integration: `python3 test_lc0.py`
+- Play Stockfish against Leela: `python3 stockfish_vs_leela.py`
+- Analyze a famous game move by move: `python3 game-analysis.py`
+
+Run the Python scripts from this directory: they expect the engines at `./Stockfish/src/stockfish` and `./lc0/build/lc0`.
 
 
 ### Further Reading

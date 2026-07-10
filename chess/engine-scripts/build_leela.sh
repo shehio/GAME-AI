@@ -1,6 +1,7 @@
 #!/bin/bash
-bash common-scripts/clone_if_not_found.sh "git@github.com:LeelaChessZero/lc0.git" "lc0"
-bash common-scripts/install_homebrew.sh
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+bash "$script_dir/common-scripts/clone_if_not_found.sh" "https://github.com/LeelaChessZero/lc0.git" "lc0"
+bash "$script_dir/common-scripts/install_homebrew.sh"
 
 brew install meson ninja python3 zlib gcc
 cd lc0 && mkdir build && cd build

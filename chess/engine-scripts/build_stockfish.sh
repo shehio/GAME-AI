@@ -1,5 +1,6 @@
 #!/bin/bash
-bash common-scripts/clone_if_not_found.sh "git@github.com:official-stockfish/Stockfish.git" "Stockfish"
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+bash "$script_dir/common-scripts/clone_if_not_found.sh" "https://github.com/official-stockfish/Stockfish.git" "Stockfish"
 cd Stockfish/src
 
 file="misc.cpp"
