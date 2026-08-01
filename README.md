@@ -140,6 +140,56 @@ def train(self):
 - First Person Games
 - Interactive Games
 
+## Experiment Tracking and Cloud Runs
+
+### What Is Instrumented
+The SB3 training loop in `arcade/baselines/helpers.py` (`train()`) reports to [Weights and Biases](https://wandb.ai) (entity `shehio`, project `game-ai`): `wandb.init` runs with `sync_tensorboard=True`, so every scalar SB3 already writes to tensorboard (`rollout/ep_rew_mean`, `rollout/ep_len_mean`, `train/*`, `time/fps`) is forwarded, and a `WandbCallback` uploads the model topology. Each epoch of the loop also logs `epoch` and `elapsed_minutes`, and the total wall time lands in the run summary. All hyperparameters (algorithm, environment, policy, timesteps, epochs, seed, and the algorithm-specific parameters) are captured in the run config. `breakout_train.py`, `pong_train.py`, and `train_baselines.py` inherit this for free. `arcade/baselines/train_agent.py` is a CLI wrapper around the same loop (choose PPO or DQN, environment, budget, DQN replay-buffer size and exploration fraction) and additionally logs a post-training evaluation as summary metrics (`eval/mean_reward`, `eval/std_reward`).
+
+### Running With and Without wandb
+```bash
+export WANDB_API_KEY=<your key>   # or `wandb login` once
+python arcade/baselines/train_agent.py --algo PPO --env Breakout-v4 --timesteps 100000 --epochs 5
+```
+Without wandb (offline machines, quick experiments), pass `--no-wandb` to any training script or set `WANDB_MODE=disabled`; training proceeds unchanged with tensorboard logs only. If the `wandb` package is missing or `wandb.init` fails, training also continues untracked.
+
+On the pinned local stack, `AutoROM --accept-license` (see `init.sh`) drops the Atari ROMs into the `AutoROM` package rather than where `ale-py` looks for them, so the Atari environments need one extra step before any of the above will run:
+```bash
+ale-import-roms "$(python -c 'import AutoROM, os; print(os.path.join(os.path.dirname(AutoROM.__file__), "roms"))')"
+```
+
+### A Two-Variant Comparison
+The quickest way to see two runs overlay is to train PPO and DQN with the same environment, budget, and seed, and tag both:
+```bash
+python arcade/baselines/train_agent.py --algo PPO --env Pong-v4 --timesteps 5000 --epochs 5 \
+    --seed 0 --buffer-size 25000 --eval-episodes 2 --torch-threads 2 --tag smoke-ab
+python arcade/baselines/train_agent.py --algo DQN --env Pong-v4 --timesteps 5000 --epochs 5 \
+    --seed 0 --buffer-size 25000 --eval-episodes 2 --torch-threads 2 --tag smoke-ab
+```
+Filter the project by the `smoke-ab` tag and the two `rollout/ep_rew_mean` curves plot on the same axes.
+
+### Hyperparameter Sweeps
+Two sweep configs live in `sweeps/`:
+- `sweeps/ppo_vs_dqn.yaml`: PPO vs DQN on Breakout with the same timestep budget, across three seeds.
+- `sweeps/dqn_pong_replay.yaml`: Bayesian search over DQN replay-buffer size and exploration fraction on Pong.
+
+```bash
+wandb sweep sweeps/ppo_vs_dqn.yaml   # prints a sweep id
+wandb agent shehio/game-ai/<sweep-id>
+```
+
+### Running on Modal
+`modal_app.py` runs the same training on a Modal A10G GPU. One-time setup:
+```bash
+pip install modal && modal setup
+modal secret create wandb WANDB_API_KEY=<your key>
+```
+Then mirror the local CLI:
+```bash
+modal run modal_app.py --algo PPO --env ALE/Breakout-v5 --timesteps 1000000 --epochs 10
+modal run modal_app.py --algo DQN --env ALE/Pong-v5 --buffer-size 100000
+```
+The Modal image uses a current SB3 stack whose `ale-py` bundles the Atari ROMs, so use the `ALE/<Game>-v5` environment ids there (locally the pinned `gymnasium==0.29.1` stack keeps the classic `Breakout-v4` style ids).
+
 ## Glossary
 - [NPC](https://en.wikipedia.org/wiki/Non-player_character): A non-player character (NPC) is a character in a game that is not controlled by a player. 
 - [Game Tree](https://en.wikipedia.org/wiki/Game_tree)
