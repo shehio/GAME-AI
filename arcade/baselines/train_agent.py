@@ -54,6 +54,11 @@ def build_model(args, env):
 def main(argv=None):
     args = parse_args(argv)
 
+    if args.no_wandb:
+        # Authoritative for callers that pass argv in-process (Modal, sweeps),
+        # where helpers.wandb_enabled cannot see the flag on sys.argv.
+        os.environ['WANDB_MODE'] = 'disabled'
+
     if args.torch_threads is not None:
         import torch
         torch.set_num_threads(args.torch_threads)

@@ -55,7 +55,6 @@ def train_remote(algo: str, env: str, timesteps: int, epochs: int, seed: int,
         argv += ['--exploration-fraction', str(exploration_fraction)]
     if no_wandb:
         argv += ['--no-wandb']
-        sys.argv.append('--no-wandb')  # helpers.wandb_enabled also checks sys.argv
 
     train_agent.main(argv)
 
