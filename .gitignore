@@ -10,3 +10,6 @@ arcade/models/
 arcade/baselines/logs/
 arcade/baselines/models/
 arcade/baselines/__pycache__/
+__pycache__/
+.venv/
+wandb/
