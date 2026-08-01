@@ -1,0 +1,26 @@
+# DQN replay-buffer size and exploration schedule on Pong.
+# Usage: wandb sweep sweeps/dqn_pong_replay.yaml && wandb agent shehio/game-ai/<sweep-id>
+program: arcade/baselines/train_agent.py
+method: bayes
+entity: shehio
+project: game-ai
+metric:
+  name: rollout/ep_rew_mean
+  goal: maximize
+parameters:
+  algo:
+    value: DQN
+  env:
+    value: Pong-v4
+  timesteps:
+    value: 100000
+  epochs:
+    value: 5
+  buffer_size:
+    values: [50000, 100000, 200000]
+  exploration_fraction:
+    distribution: uniform
+    min: 0.05
+    max: 0.4
+  seed:
+    value: 0

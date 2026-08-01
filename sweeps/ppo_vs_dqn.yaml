@@ -1,0 +1,22 @@
+# PPO vs DQN on the same environment and timestep budget, across seeds.
+# Usage: wandb sweep sweeps/ppo_vs_dqn.yaml && wandb agent shehio/game-ai/<sweep-id>
+program: arcade/baselines/train_agent.py
+method: grid
+entity: shehio
+project: game-ai
+metric:
+  name: rollout/ep_rew_mean
+  goal: maximize
+parameters:
+  algo:
+    values: [PPO, DQN]
+  env:
+    value: Breakout-v4
+  timesteps:
+    value: 100000
+  epochs:
+    value: 5
+  buffer_size:
+    value: 100000
+  seed:
+    values: [0, 1, 2]
